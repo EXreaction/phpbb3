@@ -726,7 +726,12 @@ switch ($mode)
 		// Send email to user...
 		if ($user_id)
 		{
-			if ($user_id == ANONYMOUS || !$config['board_email_form'])
+			if (!function_exists('phpbb_get_banned_user_ids'))
+			{
+				include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+			}
+
+			if ($user_id == ANONYMOUS || !$config['board_email_form'] || sizeof(phpbb_get_banned_user_ids($user_id, false)))
 			{
 				trigger_error('NO_EMAIL');
 			}
@@ -1632,13 +1637,25 @@ function show_profile($data, $user_notes_enabled = false, $warn_user_enabled = f
 {
 	global $config, $auth, $template, $user, $phpEx, $phpbb_root_path;
 
+	if (!function_exists('phpbb_get_banned_user_ids'))
+	{
+		include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+	}
+
 	$username = $data['username'];
 	$user_id = $data['user_id'];
 
 	$rank_title = $rank_img = $rank_img_src = '';
 	get_user_rank($data['user_rank'], (($user_id == ANONYMOUS) ? false : $data['user_posts']), $rank_title, $rank_img, $rank_img_src);
 
-	if ((!empty($data['user_allow_viewemail']) && $auth->acl_get('u_sendemail')) || $auth->acl_get('a_user'))
+	// Setup the email link as required
+	if (
+		$auth->acl_get('u_sendemail') && // They must have permission to send emails
+		$data['user_type'] != USER_IGNORE && // They must be a "normal" user
+		$data['user_type'] != USER_INACTIVE && // They must not be deactivated by the administrator
+		!sizeof(phpbb_get_banned_user_ids($user_id, false)) && // They must not be permanently banned
+		($auth->acl_get('a_user') || $data['user_allow_viewemail']) // Either must be able to administrate users or the user must allow users to contact them
+	)
 	{
 		$email = ($config['board_email_form'] && $config['email_enable']) ? append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=email&amp;u=' . $user_id) : (($config['board_hide_emails'] && !$auth->acl_get('a_user')) ? '' : 'mailto:' . $data['user_email']);
 	}

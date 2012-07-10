@@ -16,6 +16,7 @@ $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 include($phpbb_root_path . 'includes/bbcode.' . $phpEx);
+include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
 
 // Start session management
 $user->session_begin();
@@ -1108,6 +1109,7 @@ while ($row = $db->sql_fetchrow($result))
 			$id_cache[] = $poster_id;
 
 			$user_cache[$poster_id] = array(
+				'user_type'		=> $row['user_type'],
 				'joined'		=> $user->format_date($row['user_regdate']),
 				'posts'			=> $row['user_posts'],
 				'warnings'		=> (isset($row['user_warnings'])) ? $row['user_warnings'] : 0,
@@ -1147,7 +1149,11 @@ while ($row = $db->sql_fetchrow($result))
 
 			get_user_rank($row['user_rank'], $row['user_posts'], $user_cache[$poster_id]['rank_title'], $user_cache[$poster_id]['rank_image'], $user_cache[$poster_id]['rank_image_src']);
 
-			if ((!empty($row['user_allow_viewemail']) && $auth->acl_get('u_sendemail')) || $auth->acl_get('a_email'))
+			if (
+				$auth->acl_get('u_sendemail') && // They must have permission to send emails
+				$row['user_type'] != USER_IGNORE && // They must be a "normal" user
+				($auth->acl_get('a_user') || $row['user_allow_viewemail']) // Either must be able to administrate users or the user must allow users to contact them
+			)
 			{
 				$user_cache[$poster_id]['email'] = ($config['board_email_form'] && $config['email_enable']) ? append_sid("{$phpbb_root_path}memberlist.$phpEx", "mode=email&amp;u=$poster_id") : (($config['board_hide_emails'] && !$auth->acl_get('a_email')) ? '' : 'mailto:' . $row['user_email']);
 			}
@@ -1314,6 +1320,9 @@ if ($bbcode_bitfield !== '')
 {
 	$bbcode = new bbcode(base64_encode($bbcode_bitfield));
 }
+
+// Get the list of permanently banned users
+$permanently_banned_users = phpbb_get_banned_user_ids(array_keys($user_cache), false);
 
 $i_total = sizeof($rowset) - 1;
 $prev_post_id = '';
@@ -1486,6 +1495,12 @@ for ($i = 0, $end = sizeof($post_list); $i < $end; ++$i)
 		// we do not want to allow removal of the last post if a moderator locked it!
 		!$row['post_edit_locked']
 	)));
+
+	// Check if the user is permanently banned and therefor cannot receive Emails
+	if ($user_cache[$poster_id]['email'] && in_array($poster_id, $permanently_banned_users))
+	{
+		$user_cache[$poster_id]['email'] = '';
+	}
 
 	//
 	$postrow = array(
