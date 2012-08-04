@@ -4,6 +4,164 @@
 // ]]>
 </script>
 
+<script type="text/javascript" src="{T_ASSETS_PATH}/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+
+
+		//var smilies_path = "{T_SMILIES_PATH}";
+		var bbcode_images_path = "{T_IMAGES_PATH}bbcodes/";
+
+	var bbtags2 = new Array('[b]','[/b]','[i]','[/i]','[u]','[/u]','[quote]','[/quote]','[code]','[/code]','[list]','[/list]','[list=]','[/list]','[img]','[/img]','[url]','[/url]','[flash=]', '[/flash]','[size=]','[/size]'<!-- BEGIN custom_tags -->, {custom_tags.BBCODE_NAME}<!-- END custom_tags -->);
+
+
+		function custom_phpbb_html2bbcode(s) {
+			s = tinyMCE.trim(s);
+
+		<!-- BEGIN smiley -->
+			rg = new RegExp("<img src=\""+escapeReg("{smiley.SMILEY_IMG}".replace("\.\/"))+"\"(.*?)\/>","gi");
+			s = s.replace(rg," {smiley.A_SMILEY_CODE} ");
+		<!-- END smiley	-->
+
+			return s;
+		}
+
+		function custom_phpbb_bbcode2html(s) {
+			s = tinyMCE.trim(s);
+
+		<!-- BEGIN smiley -->
+			rg = new RegExp("^"+escapeReg("{smiley.A_SMILEY_CODE}")+"$","g");
+			s = s.replace(rg," <img src=\"{smiley.SMILEY_IMG}\" /> ");
+		<!-- END smiley	-->
+
+			return s;
+		}
+
+
+	function escapeReg(str) {
+
+  		var specials = [ "-" , "[" , "]" , "/" , "{" , "}" , "(" , ")" , "*" , "+" , "?" , "." , "\\" , "^" , "$" , "|" ];
+    	regex = RegExp('[' + specials.join('\\') + ']', 'g');
+    	return str.replace(regex, "\\$&");
+	}
+
+
+	function insertSmiley(code) {
+				tinyMCE.activeEditor.focus();
+		        oldcnt = tinyMCE.activeEditor.selection.getContent();
+		        tinyMCE.activeEditor.selection.setContent(oldcnt+custom_phpbb_bbcode2html(' '+code+' '));
+	}
+
+	editor = tinyMCE.init({
+		theme_advanced_font_sizes : "Tiny=50%,Small=85%,Normal=100%,Large=150%,Huge=200%",
+		mode : "none",
+		theme : "advanced",
+		//directionality : "rtl",
+		plugins: "bbcode2",
+		theme_advanced_buttons1 : "bold,italic,underline,undo,redo,<!-- IF S_LINKS_ALLOWED -->link,unlink,<!-- ENDIF --><!-- IF S_BBCODE_IMG -->image,<!-- ENDIF -->fontsizeselect,forecolor,removeformat",
+		theme_advanced_buttons2 : "quote,code2,list,list2,item,<!-- IF S_BBCODE_FLASH -->flash<!-- ENDIF -->",
+		theme_advanced_buttons3 : "<!-- BEGIN custom_tags -->{custom_tags.BBCODE_TAG},<!-- END custom_tags -->",
+		entity_encoding : "raw",
+		add_unload_trigger : false,
+		remove_linebreaks : false,
+		inline_styles : false,
+		convert_fonts_to_spans : false
+		,setup : function(ed) {
+
+
+
+		        ed.addButton('quote', {
+		        title : '{L_BBCODE_Q_HELP}',
+		        label : 'Quote',
+		        image : bbcode_images_path+'quote2.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[quote]'+oldcnt+'[/quote]');
+		        }
+		        });
+
+		        ed.addButton('code2', {
+		        title : '{L_BBCODE_C_HELP}',
+		        label : 'Code',
+		        image : bbcode_images_path+'code2.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[code]'+oldcnt+'[/code]');
+		        }
+		        });
+
+		        ed.addButton('list', {
+		        title : '{L_BBCODE_L_HELP}',
+		        label : 'List',
+		        image : bbcode_images_path+'list.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[list]'+oldcnt+'[/list]');
+		        }
+		        });
+
+		        ed.addButton('list2', {
+		        title : '{L_BBCODE_O_HELP}',
+		        label : 'List=',
+		        image : bbcode_images_path+'list2.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[list=]'+oldcnt+'[/list]');
+		        }
+		        });
+
+		        ed.addButton('item', {
+		        title : '{L_BBCODE_LISTITEM_HELP}',
+		        label : '[*]',
+		        image : bbcode_images_path+'item.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[*]'+oldcnt+'[/*]');
+		        }
+		        });
+
+		        ed.addButton('flash', {
+		        title : '{L_BBCODE_D_HELP}',
+		        label : 'Flash',
+		        image : bbcode_images_path+'flash.gif',
+		        onclick : function() {
+
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+		        ed.selection.setContent('[flash=]'+oldcnt+'[/flash]');
+		        }
+		        });
+
+	<!-- BEGIN custom_tags -->
+		        ed.addButton('{custom_tags.BBCODE_TAG}', {
+		        title : '{custom_tags.BBCODE_HELPLINE}',
+		        label : '{custom_tags.BBCODE_TAG}',
+		        image : bbcode_images_path+'{custom_tags.BBCODE_TAG}.gif',
+		        onclick : function() {
+		        ed.focus();
+		        oldcnt = ed.selection.getContent();
+			ed.selection.setContent(bbtags2[{custom_tags.BBCODE_ID}]+oldcnt+bbtags2[{custom_tags.BBCODE_ID}+1]);
+		        }
+		        });
+	<!-- END custom_tags -->
+
+		       }
+	});
+
+
+	tinyMCE.execCommand("mceAddControl", true, "message");
+
+</script>
+
 <fieldset class="fields1">
 	<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
 
@@ -117,7 +275,7 @@
 		<!-- IF S_SMILIES_ALLOWED and .smiley -->
 			<strong>{L_SMILIES}</strong><br />
 			<!-- BEGIN smiley -->
-				<a href="#" onclick="insert_text('{smiley.A_SMILEY_CODE}', true); return false;"><img src="{smiley.SMILEY_IMG}" width="{smiley.SMILEY_WIDTH}" height="{smiley.SMILEY_HEIGHT}" alt="{smiley.SMILEY_CODE}" title="{smiley.SMILEY_DESC}" /></a>
+				<a href="#" onclick="insertSmiley('{smiley.A_SMILEY_CODE}'); return false;"><img src="{smiley.SMILEY_IMG}" width="{smiley.SMILEY_WIDTH}" height="{smiley.SMILEY_HEIGHT}" alt="{smiley.SMILEY_CODE}" title="{smiley.SMILEY_DESC}" /></a>
 			<!-- END smiley -->
 		<!-- ENDIF -->
 		<!-- IF S_SHOW_SMILEY_LINK and S_SMILIES_ALLOWED-->
