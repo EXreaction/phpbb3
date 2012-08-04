@@ -1,0 +1,53 @@
+<script type="text/javascript" src="{T_ASSETS_PATH}/ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+function CKEditor_for_phpBB_starter() {
+	CKEDITOR.config.forceSimpleAmpersand=true;
+	CKEDITOR.config.basicEntities=false;
+	CKEDITOR.config.entities=false;
+	CKEDITOR.replace("<!-- IF S_UCP_ACTION and not S_PRIVMSGS and not S_EDIT_DRAFT -->signature<!-- ELSE -->message<!-- ENDIF -->", {
+		extraPlugins: 'bbcode',
+		fontSize_sizes: '{LA_FONT_TINY}/50%;{LA_FONT_SMALL}/85%;{LA_FONT_NORMAL}/100%<!-- IF not MAX_FONT_SIZE or MAX_FONT_SIZE >= 150 -->;{LA_FONT_LARGE}/150%<!-- IF not MAX_FONT_SIZE or MAX_FONT_SIZE >= 200 -->;{LA_FONT_HUGE}/200%<!-- ENDIF --><!-- ENDIF -->',
+		toolbar:
+		[
+			['Bold', 'Italic', 'Underline', 'Templates'],
+			['Undo', 'Redo'],
+			['NumberedList','BulletedList'<!-- IF S_BBCODE_QUOTE -->,'-', 'Blockquote'<!-- ENDIF -->],
+			<!-- IF S_BBCODE_IMG or S_LINKS_ALLOWED or S_BBCODE_FLASH --><!-- DEFINE $PHN = 0 -->
+			[<!-- IF S_BBCODE_IMG --><!-- DEFINE $PHN = 1 -->'Image'<!-- ENDIF -->
+			<!-- IF S_LINKS_ALLOWED --><!-- IF $PHN>0 -->,<!-- ENDIF --> 'Link', 'Unlink'<!-- DEFINE $PHN = 1 --><!-- ENDIF -->
+			<!-- IF S_BBCODE_FLASH --><!-- IF $PHN>0 -->,<!-- ENDIF --> 'Flash'<!-- ENDIF -->],
+			<!-- ENDIF -->
+			['FontSize', 'TextColor' <!-- IF S_SMILIES_ALLOWED and .smiley -->, 'Smiley'<!-- ENDIF -->],
+			['Source']
+		]
+		<!-- IF S_SMILIES_ALLOWED and .smiley -->,
+		contentsCss: '{T_STYLESHEET_LINK}',
+		smiley_path: '{SMILEY_CKE_FULLPATH}',
+		basicEntities: false,
+		entities: false,
+		forceSimpleAmpersand: true,
+		smiley_images: [
+			<!-- DEFINE $SLN = 0 --><!-- BEGIN smiley -->
+			<!-- IF $SLN==1 -->,<!-- ENDIF -->'{smiley.SMILEY_FILE}'<!-- DEFINE $SLN = 1 -->
+			<!-- END smiley -->
+		],
+		smiley_descriptions: [
+			<!-- DEFINE $SLN = 0 --><!-- BEGIN smiley -->
+			<!-- IF $SLN==1 -->,<!-- ENDIF -->'{smiley.SMILEY_DESC}'<!-- DEFINE $SLN = 1 -->
+			<!-- END smiley -->
+		]<!-- ENDIF -->
+	});
+	CKEDITOR.instances.<!-- IF S_UCP_ACTION and not S_PRIVMSGS and not S_EDIT_DRAFT -->signature<!-- ELSE -->message<!-- ENDIF -->.on("instanceReady", function(e) {
+		if(e.editor.document.getBody().getHtml().match(/<\/blockquote>$/i))
+			e.editor.document.getBody().setHtml(e.editor.document.getBody().getHtml()+"<br /><br />");
+		document.getElementById("format-buttons").style.display = 'none';
+		document.getElementById("smiley-box").style.display = 'none';
+		document.getElementById("message-box").style.width = '100%';
+	});
+
+	CKEDITOR.config.language='{L_USER_LANG}';
+}
+CKEditor_for_phpBB_starter();
+// ]]>
+</script>

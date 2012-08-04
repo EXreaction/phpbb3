@@ -9,8 +9,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -21,9 +21,16 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
+}
+body.cke_show_borders {
+	padding: 0 5px;
+	font-size: 12px;
+}
+.cke_show_borders li{
+	margin: 0 30px;
 }
 body {
 	line-height: 1;
@@ -164,7 +171,7 @@ ul ul, ol ul {
 
 ol ol ul, ol ul ul, ul ol ul, ul ul ul {
 	list-style-type: square;
-} 
+}
 
 
 /* Main blocks
