@@ -4,7 +4,7 @@
 
 	<div class="navbar">
 		<div class="inner">
-		
+
 		<ul class="linklist">
 			<li class="icon-home"><a href="{U_INDEX}" accesskey="h">{L_INDEX}</a></li>
 				<!-- IF not S_IS_BOT -->
@@ -54,6 +54,20 @@
 <script type="text/javascript" src="{T_ASSETS_PATH}/javascript/core.js?assets_version={T_ASSETS_VERSION}"></script>
 <!-- INCLUDEJS template/ajax.js -->
 {SCRIPTS}
+
+<!--<link rel="stylesheet" href="{T_ASSETS_PATH}/SCEditor/minified/jquery.sceditor.default.min.css" type="text/css" media="all" />
+<script type="text/javascript" src="{T_ASSETS_PATH}/SCEditor/minified/jquery.sceditor.min.js"></script>-->
+<script type="text/javascript" src="{T_ASSETS_PATH}/SCEditor/jquery.sceditor.js"></script>
+<script type="text/javascript" src="{T_ASSETS_PATH}/SCEditor/jquery.sceditor.bbcode.js"></script>
+
+<script>
+	$(document).ready(function() {
+		$("textarea").sceditorBBCodePlugin({
+			style: "{ROOT_PATH}assets/SCEditor/minified/jquery.sceditor.default.min.css",
+			emoticons: {}
+		});
+	});
+</script>
 
 </body>
 </html>
