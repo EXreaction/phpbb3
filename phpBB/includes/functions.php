@@ -2982,10 +2982,10 @@ function check_form_key($form_name, $timespan = false, $return_page = '', $trigg
 *		If title cannot be found in user->lang a default one is displayed
 *		If title_CONFIRM cannot be found in user->lang the text given is used.
 * @param string $hidden Hidden variables
-* @param string $html_body Template used for confirm box
+* @param string $html_body Template used for confirm box (should be a basic form only, do not include header/footer/etc)
 * @param string $u_action Custom form action
 */
-function confirm_box($check, $title = '', $hidden = '', $html_body = 'confirm_body.html', $u_action = '')
+function confirm_box($check, $title = '', $hidden = '', $html_body = 'forms/confirm_body.html', $u_action = '')
 {
 	global $user, $template, $db, $request;
 	global $phpEx, $phpbb_root_path, $request;
@@ -3039,8 +3039,8 @@ function confirm_box($check, $title = '', $hidden = '', $html_body = 'confirm_bo
 	}
 
 	$template->set_filenames(array(
-		'body' => $html_body)
-	);
+		'body' => 'confirm_body.html',
+	));
 
 	// If activation key already exist, we better do not re-use the key (something very strange is going on...)
 	if (request_var('confirm_key', ''))
@@ -3055,13 +3055,15 @@ function confirm_box($check, $title = '', $hidden = '', $html_body = 'confirm_bo
 	$u_action .= ((strpos($u_action, '?') === false) ? '?' : '&amp;') . 'confirm_key=' . $confirm_key;
 
 	$template->assign_vars(array(
+		'FORM_BODY'			=> $html_body,
+
 		'MESSAGE_TITLE'		=> (!isset($user->lang[$title])) ? $user->lang['CONFIRM'] : $user->lang[$title],
 		'MESSAGE_TEXT'		=> (!isset($user->lang[$title . '_CONFIRM'])) ? $title : $user->lang[$title . '_CONFIRM'],
 
 		'YES_VALUE'			=> $user->lang['YES'],
 		'S_CONFIRM_ACTION'	=> $u_action,
-		'S_HIDDEN_FIELDS'	=> $hidden . $s_hidden_fields)
-	);
+		'S_HIDDEN_FIELDS'	=> $hidden . $s_hidden_fields,
+	));
 
 	$sql = 'UPDATE ' . USERS_TABLE . " SET user_last_confirm_key = '" . $db->sql_escape($confirm_key) . "'
 		WHERE user_id = " . $user->data['user_id'];
@@ -3070,11 +3072,15 @@ function confirm_box($check, $title = '', $hidden = '', $html_body = 'confirm_bo
 
 	if ($request->is_ajax())
 	{
+		$template->set_filenames(array(
+			'body' => $html_body,
+		));
+
 		$u_action .= '&confirm_uid=' . $user->data['user_id'] . '&sess=' . $user->session_id . '&sid=' . $user->session_id;
 		$json_response = new phpbb_json_response;
 		$json_response->send(array(
 			'MESSAGE_TITLE'		=> (!isset($user->lang[$title])) ? $user->lang['CONFIRM'] : $user->lang[$title],
-			'MESSAGE_TEXT' 	=> (!isset($user->lang[$title . '_CONFIRM'])) ? $title : $user->lang[$title . '_CONFIRM'],
+			'MESSAGE_TEXT'		=> (!isset($user->lang[$title . '_CONFIRM'])) ? $title : $user->lang[$title . '_CONFIRM'],
 
 			'YES_VALUE'			=> $user->lang['YES'],
 			'S_CONFIRM_ACTION'	=> str_replace('&amp;', '&', $u_action), //inefficient, rewrite whole function
