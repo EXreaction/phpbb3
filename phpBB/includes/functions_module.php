@@ -399,6 +399,7 @@ class p_master
 			$id = request_var('icat', '');
 		}
 
+		$id = str_replace('-', '\\', $id);
 		if ($id && !is_numeric($id) && !$this->is_full_class($id))
 		{
 			$id = $this->p_class . '_' . $id;
@@ -407,6 +408,13 @@ class p_master
 		$category = false;
 		foreach ($this->module_ary as $row_id => $item_ary)
 		{
+			// Append \ in front of the id name if necessary
+			// Means we can do foo-bar-acp-module rather than -foo-bar-acp-module
+			if ($item_ary['name'] === '\\' . $id)
+			{
+				$id = '\\' . $id;
+			}
+
 			// If this is a module and it's selected, active
 			// If this is a category and the module is the first within it, active
 			// If this is a module and no mode selected, select first mode
